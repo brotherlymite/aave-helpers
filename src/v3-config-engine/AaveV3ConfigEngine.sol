@@ -35,6 +35,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
     string assetSymbol;
     address priceFeed;
     IV3RateStrategyFactory.RateStrategyParams rateStrategyParams;
+    TokenImplementations implementations;
   }
 
   struct Borrow {
@@ -103,6 +104,27 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
   /// @inheritdoc IAaveV3ConfigEngine
   function listAssets(PoolContext memory context, Listing[] memory listings) public {
+    require(listings.length != 0, 'AT_LEAST_ONE_ASSET_REQUIRED');
+
+    ListingWithCustomImpl[] memory customListings = new ListingWithCustomImpl[](listings.length);
+    for (uint256 i = 0; i < listings.length; i++) {
+      customListings[i] = ListingWithCustomImpl({
+        base: listings[i],
+        implementations: TokenImplementations({
+          aToken: ATOKEN_IMPL,
+          vToken: VTOKEN_IMPL,
+          sToken: STOKEN_IMPL
+        })
+      });
+    }
+
+    listAssetsCustom(context, customListings);
+  }
+
+  /// @inheritdoc IAaveV3ConfigEngine
+  function listAssetsCustom(PoolContext memory context, ListingWithCustomImpl[] memory listings)
+    public
+  {
     require(listings.length != 0, 'AT_LEAST_ONE_ASSET_REQUIRED');
 
     AssetsConfig memory configs = _repackListing(listings);
@@ -393,7 +415,11 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
     }
   }
 
-  function _repackListing(Listing[] memory listings) internal pure returns (AssetsConfig memory) {
+  function _repackListing(ListingWithCustomImpl[] memory listings)
+    internal
+    pure
+    returns (AssetsConfig memory)
+  {
     address[] memory ids = new address[](listings.length);
     Basic[] memory basics = new Basic[](listings.length);
     Borrow[] memory borrows = new Borrow[](listings.length);
@@ -403,31 +429,35 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
       memory rates = new IV3RateStrategyFactory.RateStrategyParams[](listings.length);
 
     for (uint256 i = 0; i < listings.length; i++) {
-      require(listings[i].asset != address(0), 'INVALID_ASSET');
-      ids[i] = listings[i].asset;
+      require(listings[i].base.asset != address(0), 'INVALID_ASSET');
+      ids[i] = listings[i].base.asset;
       basics[i] = Basic({
-        assetSymbol: listings[i].assetSymbol,
-        priceFeed: listings[i].priceFeed,
-        rateStrategyParams: listings[i].rateStrategyParams
+        assetSymbol: listings[i].base.assetSymbol,
+        priceFeed: listings[i].base.priceFeed,
+        rateStrategyParams: listings[i].base.rateStrategyParams,
+        implementations: listings[i].implementations
       });
       borrows[i] = Borrow({
-        enabledToBorrow: listings[i].enabledToBorrow,
-        flashloanable: listings[i].flashloanable,
-        stableRateModeEnabled: listings[i].stableRateModeEnabled,
-        borrowableInIsolation: listings[i].borrowableInIsolation,
-        withSiloedBorrowing: listings[i].withSiloedBorrowing,
-        reserveFactor: listings[i].reserveFactor
+        enabledToBorrow: listings[i].base.enabledToBorrow,
+        flashloanable: listings[i].base.flashloanable,
+        stableRateModeEnabled: listings[i].base.stableRateModeEnabled,
+        borrowableInIsolation: listings[i].base.borrowableInIsolation,
+        withSiloedBorrowing: listings[i].base.withSiloedBorrowing,
+        reserveFactor: listings[i].base.reserveFactor
       });
       collaterals[i] = Collateral({
-        ltv: listings[i].ltv,
-        liqThreshold: listings[i].liqThreshold,
-        liqBonus: listings[i].liqBonus,
-        debtCeiling: listings[i].debtCeiling,
-        liqProtocolFee: listings[i].liqProtocolFee,
-        eModeCategory: listings[i].eModeCategory
+        ltv: listings[i].base.ltv,
+        liqThreshold: listings[i].base.liqThreshold,
+        liqBonus: listings[i].base.liqBonus,
+        debtCeiling: listings[i].base.debtCeiling,
+        liqProtocolFee: listings[i].base.liqProtocolFee,
+        eModeCategory: listings[i].base.eModeCategory
       });
-      caps[i] = Caps({supplyCap: listings[i].supplyCap, borrowCap: listings[i].borrowCap});
-      rates[i] = listings[i].rateStrategyParams;
+      caps[i] = Caps({
+        supplyCap: listings[i].base.supplyCap,
+        borrowCap: listings[i].base.borrowCap
+      });
+      rates[i] = listings[i].base.rateStrategyParams;
     }
 
     return

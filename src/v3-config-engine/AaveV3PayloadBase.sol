@@ -37,6 +37,7 @@ abstract contract AaveV3PayloadBase {
     _preExecute();
 
     IEngine.Listing[] memory listings = newListings();
+    IEngine.ListingWithCustomImpl[] memory listingsCustom = newListingsCustom();
     IEngine.CapsUpdate[] memory caps = capsUpdates();
     IEngine.CollateralUpdate[] memory collaterals = collateralsUpdates();
     IEngine.RateStrategyUpdate[] memory rates = rateStrategiesUpdates();
@@ -44,6 +45,16 @@ abstract contract AaveV3PayloadBase {
     if (listings.length != 0) {
       address(LISTING_ENGINE).functionDelegateCall(
         abi.encodeWithSelector(LISTING_ENGINE.listAssets.selector, getPoolContext(), listings)
+      );
+    }
+
+    if (listingsCustom.length != 0) {
+      address(LISTING_ENGINE).functionDelegateCall(
+        abi.encodeWithSelector(
+          LISTING_ENGINE.listAssetsCustom.selector,
+          getPoolContext(),
+          listingsCustom
+        )
       );
     }
 
@@ -77,6 +88,14 @@ abstract contract AaveV3PayloadBase {
 
   /// @dev to be defined in the child with a list of new assets to list
   function newListings() public view virtual returns (IEngine.Listing[] memory) {}
+
+  /// @dev to be defined in the child with a list of new assets to list (with custom a/v/s tokens implementations)
+  function newListingsCustom()
+    public
+    view
+    virtual
+    returns (IEngine.ListingWithCustomImpl[] memory)
+  {}
 
   /// @dev to be defined in the child with a list of caps to update
   function capsUpdates() public view virtual returns (IEngine.CapsUpdate[] memory) {}

@@ -74,6 +74,17 @@ interface IAaveV3ConfigEngine {
     uint8 eModeCategory; // If `O`, no eMode category will be set
   }
 
+  struct TokenImplementations {
+    address aToken;
+    address vToken;
+    address sToken;
+  }
+
+  struct ListingWithCustomImpl {
+    Listing base;
+    TokenImplementations implementations;
+  }
+
   /**
    * @dev Example (mock):
    * CapsUpdate({
@@ -140,6 +151,17 @@ interface IAaveV3ConfigEngine {
    *   More information on the documentation of the struct.
    */
   function listAssets(PoolContext memory context, Listing[] memory listings) external;
+
+  /**
+   * @notice Performs a full listing of an asset in the Aave pool configured in this engine instance
+   * @dev This function allows more customization, especifically enables to set custom implementations
+   *   for a/v/s tokens.
+   *   IMPORTANT. Use it only if understanding the internals of the Aave v3 protocol
+   * @param context `PoolContext` struct, effectively meta-data for naming of a/v/s tokens.
+   *   More information on the documentation of the struct.
+   * @param listings `ListingWithCustomImpl[]` list of declarative configs for every aspect of the asset listing.
+   */
+  function listAssetsCustom(PoolContext memory context, ListingWithCustomImpl[] memory listings) external;
 
   /**
    * @notice Performs an update of the caps (supply, borrow) of an asset, in the Aave pool configured in this engine instance
