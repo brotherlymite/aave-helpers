@@ -158,7 +158,7 @@ interface IAaveV3ConfigEngine {
 
   /**
    * @notice Performs an update of the collateral-related params of an asset, in the Aave pool configured in this engine instance
-   * @param updates `CapsUpCollateralUpdatedate[]` list of declarative updates containing the new parameters
+   * @param updates `CollateralUpdate[]` list of declarative updates containing the new parameters
    *   More information on the documentation of the struct.
    */
   function updateCollateralSide(CollateralUpdate[] memory updates) external;
