@@ -102,8 +102,8 @@ interface IAaveV3ConfigEngine {
   /**
    * @dev Example (mock):
    * PriceFeedUpdate({
-   *   asset: 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
-   *   priceFeed: 0x547a514d5e3769680Ce22B2361c10Ea13619e8a9,
+   *   asset: AaveV3EthereumAssets.AAVE_UNDERLYING,
+   *   priceFeed: 0x547a514d5e3769680Ce22B2361c10Ea13619e8a9
    * })
    */
   struct PriceFeedUpdate {
@@ -136,13 +136,13 @@ interface IAaveV3ConfigEngine {
   /**
    * @dev Example (mock):
    * BorrowUpdate({
-   *   asset: AaveV3EthereumAssets.USDC,
-   *   enabledToBorrow: EngineFlags.KEEP_CURRENT,
-   *   flashloanable: false,
+   *   asset: AaveV3EthereumAssets.AAVE_UNDERLYING,
+   *   enabledToBorrow: true,
+   *   flashloanable: EngineFlags.KEEP_CURRENT,
    *   stableRateModeEnabled: EngineFlags.KEEP_CURRENT,
    *   borrowableInIsolation: EngineFlags.KEEP_CURRENT,
    *   withSiloedBorrowing: EngineFlags.KEEP_CURRENT,
-   *   reserveFactor: EngineFlags.KEEP_CURRENT
+   *   reserveFactor: 15_00, // 15%
    * })
    */
   struct BorrowUpdate {
