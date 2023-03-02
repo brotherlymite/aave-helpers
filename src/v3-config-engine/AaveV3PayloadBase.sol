@@ -15,6 +15,8 @@ import {EngineFlags} from './EngineFlags.sol';
  * - At the moment covering:
  *   - Listings of new assets on the pool.
  *   - Updates of caps (supply cap, borrow cap).
+ *   - Updates of price feeds
+ *   - Updates of borrow parameters (flashloanable, stableRateModeEnabled, borrowableInIsolation, withSiloedBorrowing, reserveFactor)
  *   - Updates of collateral parameters (ltv, liq threshold, liq bonus, liq protocol fee, debt ceiling)
  * @author BGD Labs
  */
@@ -40,6 +42,8 @@ abstract contract AaveV3PayloadBase {
     IEngine.ListingWithCustomImpl[] memory listingsCustom = newListingsCustom();
     IEngine.CapsUpdate[] memory caps = capsUpdates();
     IEngine.CollateralUpdate[] memory collaterals = collateralsUpdates();
+    IEngine.BorrowUpdate[] memory borrows = borrowsUpdates();
+    IEngine.PriceFeedUpdate[] memory priceFeeds = priceFeedsUpdates();
     IEngine.RateStrategyUpdate[] memory rates = rateStrategiesUpdates();
 
     if (listings.length != 0) {
@@ -58,6 +62,12 @@ abstract contract AaveV3PayloadBase {
       );
     }
 
+    if (borrows.length != 0) {
+      address(LISTING_ENGINE).functionDelegateCall(
+        abi.encodeWithSelector(LISTING_ENGINE.updateBorrowSide.selector, borrows)
+      );
+    }
+
     if (collaterals.length != 0) {
       address(LISTING_ENGINE).functionDelegateCall(
         abi.encodeWithSelector(LISTING_ENGINE.updateCollateralSide.selector, collaterals)
@@ -67,6 +77,12 @@ abstract contract AaveV3PayloadBase {
     if (rates.length != 0) {
       address(LISTING_ENGINE).functionDelegateCall(
         abi.encodeWithSelector(LISTING_ENGINE.updateRateStrategies.selector, rates)
+      );
+    }
+
+    if (priceFeeds.length != 0) {
+      address(LISTING_ENGINE).functionDelegateCall(
+        abi.encodeWithSelector(LISTING_ENGINE.updatePriceFeeds.selector, priceFeeds)
       );
     }
 
@@ -102,6 +118,12 @@ abstract contract AaveV3PayloadBase {
 
   /// @dev to be defined in the child with a list of collaterals' params to update
   function collateralsUpdates() public view virtual returns (IEngine.CollateralUpdate[] memory) {}
+
+  /// @dev to be defined in the child with a list of borrows' params to update
+  function borrowsUpdates() public view virtual returns (IEngine.BorrowUpdate[] memory) {}
+
+  /// @dev to be defined in the child with a list of priceFeeds to update
+  function priceFeedsUpdates() public view virtual returns (IEngine.PriceFeedUpdate[] memory) {}
 
   /// @dev to be defined in the child with a list of set of parameters of rate strategies
   function rateStrategiesUpdates()
