@@ -8,7 +8,9 @@ import '../../v3-config-engine/AaveV3PayloadOptimism.sol';
  * IMPORTANT Parameters are pseudo-random, DON'T USE THIS ANYHOW IN PRODUCTION
  * @author BGD Labs
  */
-contract AaveV3OptimismMockRatesUpdate is AaveV3PayloadOptimism {
+contract AaveV3OptimismMockRatesUpdate is AaveV3PayloadBase {
+  constructor(IEngine customEngine) AaveV3PayloadBase(customEngine) {}
+
   function rateStrategiesUpdates()
     public
     pure
@@ -33,5 +35,9 @@ contract AaveV3OptimismMockRatesUpdate is AaveV3PayloadOptimism {
     });
 
     return ratesUpdate;
+  }
+
+  function getPoolContext() public pure override returns (IEngine.PoolContext memory) {
+    return IEngine.PoolContext({networkName: 'Optimism', networkAbbreviation: 'Opt'});
   }
 }

@@ -8,7 +8,9 @@ import '../../v3-config-engine/AaveV3PayloadAvalanche.sol';
  * IMPORTANT Parameters are pseudo-random, DON'T USE THIS ANYHOW IN PRODUCTION
  * @author BGD Labs
  */
-contract AaveV3AvalancheCollateralUpdate is AaveV3PayloadAvalanche {
+contract AaveV3AvalancheCollateralUpdate is AaveV3PayloadBase {
+  constructor(IEngine customEngine) AaveV3PayloadBase(customEngine) {}
+
   function collateralsUpdates() public pure override returns (IEngine.CollateralUpdate[] memory) {
     IEngine.CollateralUpdate[] memory collateralsUpdate = new IEngine.CollateralUpdate[](1);
 
@@ -23,5 +25,9 @@ contract AaveV3AvalancheCollateralUpdate is AaveV3PayloadAvalanche {
     });
 
     return collateralsUpdate;
+  }
+
+  function getPoolContext() public pure override returns (IEngine.PoolContext memory) {
+    return IEngine.PoolContext({networkName: 'Arbitrum', networkAbbreviation: 'Arb'});
   }
 }
