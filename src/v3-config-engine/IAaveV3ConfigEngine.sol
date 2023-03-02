@@ -178,34 +178,34 @@ interface IAaveV3ConfigEngine {
   }
 
   /**
-   * @notice Performs a full listing of an asset in the Aave pool configured in this engine instance
+   * @notice Performs full listing of the assets, in the Aave pool configured in this engine instance
    * @param context `PoolContext` struct, effectively meta-data for naming of a/v/s tokens.
    *   More information on the documentation of the struct.
-   * @param listings `Listing[]` list of declarative configs for every aspect of the asset listing.
+   * @param listings `Listing[]` list of declarative configs for every aspect of the asset listings.
    *   More information on the documentation of the struct.
    */
   function listAssets(PoolContext memory context, Listing[] memory listings) external;
 
   /**
-   * @notice Performs a full listing of an asset in the Aave pool configured in this engine instance
+   * @notice Performs full listings of assets, in the Aave pool configured in this engine instance
    * @dev This function allows more customization, especifically enables to set custom implementations
    *   for a/v/s tokens.
    *   IMPORTANT. Use it only if understanding the internals of the Aave v3 protocol
    * @param context `PoolContext` struct, effectively meta-data for naming of a/v/s tokens.
    *   More information on the documentation of the struct.
-   * @param listings `ListingWithCustomImpl[]` list of declarative configs for every aspect of the asset listing.
+   * @param listings `ListingWithCustomImpl[]` list of declarative configs for every aspect of the asset listings.
    */
   function listAssetsCustom(PoolContext memory context, ListingWithCustomImpl[] memory listings) external;
 
   /**
-   * @notice Performs an update of the caps (supply, borrow) of an asset, in the Aave pool configured in this engine instance
+   * @notice Performs an update of the caps (supply, borrow) of the assets, in the Aave pool configured in this engine instance
    * @param updates `CapsUpdate[]` list of declarative updates containing the new caps
    *   More information on the documentation of the struct.
    */
   function updateCaps(CapsUpdate[] memory updates) external;
 
   /**
-   * @notice Performs an update the rate strategy params of an asset, in the Aave pool configured in this engine instance
+   * @notice Performs an update on the rate strategy params of the assets, in the Aave pool configured in this engine instance
    * @dev The engine itself manages if a new rate strategy needs to be deployed or if an existing one can be re-used
    * @param updates `RateStrategyUpdate[]` list of declarative updates containing the new rate strategy params
    *   More information on the documentation of the struct.
@@ -213,21 +213,21 @@ interface IAaveV3ConfigEngine {
   function updateRateStrategies(RateStrategyUpdate[] memory updates) external;
 
   /**
-   * @notice Performs an update of the collateral-related params of an asset, in the Aave pool configured in this engine instance
+   * @notice Performs an update of the collateral-related params of the assets, in the Aave pool configured in this engine instance
    * @param updates `CollateralUpdate[]` list of declarative updates containing the new parameters
    *   More information on the documentation of the struct.
    */
   function updateCollateralSide(CollateralUpdate[] memory updates) external;
 
   /**
-   * @notice Performs an update of the price feed of an asset, in the Aave pool configured in this engine instance
+   * @notice Performs an update of the price feed of the assets, in the Aave pool configured in this engine instance
    * @param updates `PriceFeedUpdate[]` list of declarative updates containing the new parameters
    *   More information on the documentation of the struct.
    */
   function updatePriceFeeds(PriceFeedUpdate[] memory updates) external;
 
   /**
-   * @notice Performs an update of the borrow-related params of an asset, in the Aave pool configured in this engine instance
+   * @notice Performs an update of the borrow-related params of the assets, in the Aave pool configured in this engine instance
    * @param updates `BorrowUpdate[]` list of declarative updates containing the new parameters
    *   More information on the documentation of the struct.
    */
