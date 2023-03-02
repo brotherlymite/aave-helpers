@@ -101,7 +101,19 @@ interface IAaveV3ConfigEngine {
 
   /**
    * @dev Example (mock):
-   * CapsUpdate({
+   * PriceFeedUpdate({
+   *   asset: 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9,
+   *   priceFeed: 0x547a514d5e3769680Ce22B2361c10Ea13619e8a9,
+   * })
+   */
+  struct PriceFeedUpdate {
+    address asset;
+    address priceFeed;
+  }
+
+  /**
+   * @dev Example (mock):
+   * CollateralUpdate({
    *   asset: AaveV3EthereumAssets.AAVE_UNDERLYING,
    *   ltv: 60_00,
    *   liqThreshold: 70_00,
@@ -119,6 +131,28 @@ interface IAaveV3ConfigEngine {
     uint256 debtCeiling;
     uint256 liqProtocolFee;
     uint256 eModeCategory;
+  }
+
+  /**
+   * @dev Example (mock):
+   * BorrowUpdate({
+   *   asset: AaveV3EthereumAssets.USDC,
+   *   enabledToBorrow: EngineFlags.KEEP_CURRENT,
+   *   flashloanable: false,
+   *   stableRateModeEnabled: EngineFlags.KEEP_CURRENT,
+   *   borrowableInIsolation: EngineFlags.KEEP_CURRENT,
+   *   withSiloedBorrowing: EngineFlags.KEEP_CURRENT,
+   *   reserveFactor: EngineFlags.KEEP_CURRENT
+   * })
+   */
+  struct BorrowUpdate {
+    address asset;
+    bool enabledToBorrow;
+    bool flashloanable;
+    bool stableRateModeEnabled;
+    bool borrowableInIsolation;
+    bool withSiloedBorrowing;
+    uint256 reserveFactor;
   }
 
   /**
@@ -180,10 +214,24 @@ interface IAaveV3ConfigEngine {
 
   /**
    * @notice Performs an update of the collateral-related params of an asset, in the Aave pool configured in this engine instance
-   * @param updates `CapsUpCollateralUpdatedate[]` list of declarative updates containing the new parameters
+   * @param updates `CollateralUpdate[]` list of declarative updates containing the new parameters
    *   More information on the documentation of the struct.
    */
   function updateCollateralSide(CollateralUpdate[] memory updates) external;
+
+  /**
+   * @notice Performs an update of the price feed of an asset, in the Aave pool configured in this engine instance
+   * @param updates `PriceFeedUpdate[]` list of declarative updates containing the new parameters
+   *   More information on the documentation of the struct.
+   */
+  function updatePriceFeeds(PriceFeedUpdate[] memory updates) external;
+
+  /**
+   * @notice Performs an update of the borrow-related params of an asset, in the Aave pool configured in this engine instance
+   * @param updates `BorrowUpdate[]` list of declarative updates containing the new parameters
+   *   More information on the documentation of the struct.
+   */
+  function updateBorrowSide(BorrowUpdate[] memory updates) external;
 
   function RATE_STRATEGIES_FACTORY() external view returns (IV3RateStrategyFactory);
 
