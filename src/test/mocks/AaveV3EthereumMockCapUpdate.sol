@@ -8,7 +8,10 @@ import '../../v3-config-engine/AaveV3PayloadEthereum.sol';
  * IMPORTANT Parameters are pseudo-random, DON'T USE THIS ANYHOW IN PRODUCTION
  * @author BGD Labs
  */
-contract AaveV3EthereumMockCapUpdate is AaveV3PayloadEthereum {
+contract AaveV3EthereumMockCapUpdate is AaveV3PayloadBase {
+  // TODO remove custom engine once available on address book
+  constructor(IEngine customEngine) AaveV3PayloadBase(customEngine) {}
+
   function capsUpdates() public pure override returns (IEngine.CapsUpdate[] memory) {
     IEngine.CapsUpdate[] memory capsUpdate = new IEngine.CapsUpdate[](1);
 
@@ -19,5 +22,9 @@ contract AaveV3EthereumMockCapUpdate is AaveV3PayloadEthereum {
     });
 
     return capsUpdate;
+  }
+
+  function getPoolContext() public pure override returns (IEngine.PoolContext memory) {
+    return IEngine.PoolContext({networkName: 'Ethereum', networkAbbreviation: 'Eth'});
   }
 }

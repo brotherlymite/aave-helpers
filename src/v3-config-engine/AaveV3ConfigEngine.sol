@@ -349,10 +349,12 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
   function _configCollateralSide(address[] memory ids, Collateral[] memory collaterals) internal {
     for (uint256 i = 0; i < ids.length; i++) {
       if (collaterals[i].liqThreshold != 0) {
+        bool isSameLiqBonus;
         if (
           collaterals[i].ltv == EngineFlags.KEEP_CURRENT ||
           collaterals[i].liqThreshold == EngineFlags.KEEP_CURRENT ||
-          collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT
+          collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT || 
+          collaterals[i].liqProtocolFee == EngineFlags.KEEP_CURRENT
         ) {
           DataTypes.ReserveConfigurationMap memory configuration = POOL.getConfiguration(ids[i]);
           (
@@ -374,11 +376,17 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
           if (collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT) {
             collaterals[i].liqBonus = currentLiqBonus;
+            isSameLiqBonus = true;
+          }
+
+          if (collaterals[i].liqProtocolFee == EngineFlags.KEEP_CURRENT) {
+            collaterals[i].liqProtocolFee = configuration.getLiquidationProtocolFee();
           }
         }
 
         require(
-          collaterals[i].liqThreshold + collaterals[i].liqBonus < 100_00,
+          isSameLiqBonus ? collaterals[i].liqThreshold + (collaterals[i].liqBonus - 100_00) < 100_00 : 
+            collaterals[i].liqThreshold + collaterals[i].liqBonus < 100_00,
           'INVALID_LIQ_PARAMS_ABOVE_100'
         );
         require(collaterals[i].liqProtocolFee < 100_00, 'INVALID_LIQ_PROTOCOL_FEE');
@@ -389,7 +397,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
           collaterals[i].liqThreshold,
           // For reference, this is to simplify the interaction with the Aave protocol,
           // as there the definition is as e.g. 105% (5% bonus for liquidators)
-          100_00 + collaterals[i].liqBonus
+          isSameLiqBonus ? collaterals[i].liqBonus : 100_00 + collaterals[i].liqBonus
         );
 
         if (collaterals[i].liqProtocolFee != EngineFlags.KEEP_CURRENT) {
