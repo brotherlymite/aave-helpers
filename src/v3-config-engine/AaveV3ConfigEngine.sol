@@ -375,6 +375,14 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
           if (collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT) {
             collaterals[i].liqBonus = currentLiqBonus;
           }
+
+          if (collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT) {
+            collaterals[i].liqBonus = currentLiqBonus - 100_00;
+          }
+
+          if (collaterals[i].liqProtocolFee == EngineFlags.KEEP_CURRENT) {
+            collaterals[i].liqProtocolFee = configuration.getLiquidationProtocolFee();
+          }
         }
 
         require(
