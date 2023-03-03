@@ -228,6 +228,27 @@ contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
     );
   }
 
+  function testPolygonRatesUpdate() public {
+    vm.createSelectFork(vm.rpcUrl('polygon'), 39797440);
+
+    (address ratesFactory, ) = DeployRatesFactoryPolLib.deploy();
+
+    IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEnginePolLib.deploy(ratesFactory));
+    AaveV3PolygonRatesUpdates070322 payload = new AaveV3PolygonRatesUpdates070322(engine);
+
+    vm.startPrank(AaveV3Polygon.ACL_ADMIN);
+    AaveV3Polygon.ACL_MANAGER.addPoolAdmin(address(payload));
+    vm.stopPrank();
+
+    createConfigurationSnapshot('preTestEnginePolygonRates', AaveV3Polygon.POOL);
+
+    payload.execute();
+
+    createConfigurationSnapshot('postTestEnginePolygonRates', AaveV3Polygon.POOL);
+
+    diffReports('preTestEnginePolygonRates', 'postTestEnginePolygonRates');
+  }
+
   function _bpsToRay(uint256 amount) internal pure returns (uint256) {
     return (amount * 1e27) / 10_000;
   }

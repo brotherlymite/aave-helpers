@@ -9,6 +9,7 @@ import '../../v3-config-engine/AaveV3PayloadAvalanche.sol';
  * @author BGD Labs
  */
 contract AaveV3AvalancheCollateralUpdate is AaveV3PayloadBase {
+  // TODO remove custom engine once available on address book
   constructor(IEngine customEngine) AaveV3PayloadBase(customEngine) {}
 
   function collateralsUpdates() public pure override returns (IEngine.CollateralUpdate[] memory) {
