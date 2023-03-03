@@ -37,11 +37,11 @@ interface IAaveV3ConfigEngine {
    *     stableRateExcessOffset: _bpsToRay(3_00),
    *     optimalStableToTotalDebtRatio: _bpsToRay(30_00)
    *   }),
-   *   enabledToBorrow: true,
-   *   flashloanable: true,
-   *   stableRateModeEnabled: false,
-   *   borrowableInIsolation: true,
-   *   withSiloedBorrowing:, false,
+   *   enabledToBorrow: EngineFlags.ENABLED,
+   *   flashloanable: EngineFlags.ENABLED,
+   *   stableRateModeEnabled: EngineFlags.DISABLED,
+   *   borrowableInIsolation: EngineFlags.ENABLED,
+   *   withSiloedBorrowing:, EngineFlags.DISABLED,
    *   ltv: 70_50, // 70.5%
    *   liqThreshold: 76_00, // 76%
    *   liqBonus: 5_00, // 5%
@@ -58,15 +58,15 @@ interface IAaveV3ConfigEngine {
     string assetSymbol;
     address priceFeed;
     IV3RateStrategyFactory.RateStrategyParams rateStrategyParams; // Mandatory, no matter if enabled for borrowing or not
-    bool enabledToBorrow;
-    bool stableRateModeEnabled; // Only considered is enabledToBorrow == true
-    bool borrowableInIsolation; // Only considered is enabledToBorrow == true
-    bool withSiloedBorrowing; // Only considered if enabledToBorrow == true
-    bool flashloanable; // Independent from enabled to borrow: an asset can be flashloanble and not enabled to borrow
+    uint256 enabledToBorrow;
+    uint256 stableRateModeEnabled; // Only considered is enabledToBorrow == EngineFlags.ENABLED (true)
+    uint256 borrowableInIsolation; // Only considered is enabledToBorrow == EngineFlags.ENABLED (true)
+    uint256 withSiloedBorrowing; // Only considered if enabledToBorrow == EngineFlags.ENABLED (true)
+    uint256 flashloanable; // Independent from enabled to borrow: an asset can be flashloanble and not enabled to borrow
     uint256 ltv; // Only considered if liqThreshold > 0
     uint256 liqThreshold; // If `0`, the asset will not be enabled as collateral
     uint256 liqBonus; // Only considered if liqThreshold > 0
-    uint256 reserveFactor; // Only considered if enabledToBorrow == true
+    uint256 reserveFactor; // Only considered if enabledToBorrow == EngineFlags.ENABLED (true)
     uint256 supplyCap; // If passing any value distinct to EngineFlags.KEEP_CURRENT, always configured
     uint256 borrowCap; // If passing any value distinct to EngineFlags.KEEP_CURRENT, always configured
     uint256 debtCeiling; // Only considered if liqThreshold > 0
@@ -137,7 +137,7 @@ interface IAaveV3ConfigEngine {
    * @dev Example (mock):
    * BorrowUpdate({
    *   asset: AaveV3EthereumAssets.AAVE_UNDERLYING,
-   *   enabledToBorrow: true,
+   *   enabledToBorrow: EngineFlags.ENABLED,
    *   flashloanable: EngineFlags.KEEP_CURRENT,
    *   stableRateModeEnabled: EngineFlags.KEEP_CURRENT,
    *   borrowableInIsolation: EngineFlags.KEEP_CURRENT,
@@ -147,11 +147,11 @@ interface IAaveV3ConfigEngine {
    */
   struct BorrowUpdate {
     address asset;
-    bool enabledToBorrow;
-    bool flashloanable;
-    bool stableRateModeEnabled;
-    bool borrowableInIsolation;
-    bool withSiloedBorrowing;
+    uint256 enabledToBorrow;
+    uint256 flashloanable;
+    uint256 stableRateModeEnabled;
+    uint256 borrowableInIsolation;
+    uint256 withSiloedBorrowing;
     uint256 reserveFactor;
   }
 

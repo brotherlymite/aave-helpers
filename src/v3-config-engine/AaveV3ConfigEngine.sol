@@ -39,11 +39,11 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
   }
 
   struct Borrow {
-    bool enabledToBorrow; // Main config flag, if false, some of the other fields will not be considered
-    bool flashloanable;
-    bool stableRateModeEnabled;
-    bool borrowableInIsolation;
-    bool withSiloedBorrowing;
+    uint256 enabledToBorrow; // Main config flag, if 0 (false), some of the other fields will not be considered
+    uint256 flashloanable; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
+    uint256 stableRateModeEnabled; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
+    uint256 borrowableInIsolation; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
+    uint256 withSiloedBorrowing; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
     uint256 reserveFactor; // With 2 digits precision, `10_00` for 10%. Should be positive and < 100_00
   }
 
@@ -270,32 +270,38 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
   function _configBorrowSide(address[] memory ids, Borrow[] memory borrows) internal {
     for (uint256 i = 0; i < ids.length; i++) {
-      if (borrows[i].enabledToBorrow) {
+      if (borrows[i].enabledToBorrow == 1 && borrows[i].enabledToBorrow != EngineFlags.KEEP_CURRENT) {
         POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
 
         // If enabled to borrow, the reserve factor should always be configured and > 0
         require(
-          borrows[i].reserveFactor > 0 && borrows[i].reserveFactor < 100_00,
+          borrows[i].reserveFactor > 0 && 
+          borrows[i].reserveFactor < 100_00 && 
+          borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT,
           'INVALID_RESERVE_FACTOR'
         );
-        POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
 
-        if (borrows[i].stableRateModeEnabled) {
+        if (borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT)
+          POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
+
+        if (borrows[i].stableRateModeEnabled == 1)
           POOL_CONFIGURATOR.setReserveStableRateBorrowing(ids[i], true);
-        }
+        else if (borrows[i].stableRateModeEnabled == 0)
+          POOL_CONFIGURATOR.setReserveStableRateBorrowing(ids[i], false);
 
-        if (borrows[i].borrowableInIsolation) {
+        if (borrows[i].borrowableInIsolation == 1)
           POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], true);
-        }
+        else if (borrows[i].borrowableInIsolation == 0)
+          POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], false);
 
-        if (borrows[i].withSiloedBorrowing) {
+        if (borrows[i].withSiloedBorrowing == 1)
           POOL_CONFIGURATOR.setSiloedBorrowing(ids[i], true);
-        }
-      }
+        else if (borrows[i].withSiloedBorrowing == 0)
+          POOL_CONFIGURATOR.setSiloedBorrowing(ids[i], false);
 
-      if (borrows[i].flashloanable) {
-        POOL_CONFIGURATOR.setReserveFlashLoaning(ids[i], true);
       }
+      if (borrows[i].flashloanable == 1)
+        POOL_CONFIGURATOR.setReserveFlashLoaning(ids[i], true);
     }
   }
 
