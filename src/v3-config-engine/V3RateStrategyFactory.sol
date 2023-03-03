@@ -130,7 +130,7 @@ contract V3RateStrategyFactory is Initializable, IV3RateStrategyFactory {
         stableRateSlope1: strategy.getStableRateSlope1(),
         stableRateSlope2: strategy.getStableRateSlope2(),
         baseStableRateOffset: (strategy.getBaseStableBorrowRate() > 0)
-          ? (strategy.getBaseStableBorrowRate() - strategy.getBaseVariableBorrowRate())
+          ? (strategy.getBaseStableBorrowRate() - strategy.getVariableRateSlope1())
           : 0, // The baseStableRateOffset is not exposed, so needs to be inferred for now
         stableRateExcessOffset: strategy.getStableRateExcessOffset(),
         optimalStableToTotalDebtRatio: strategy.OPTIMAL_STABLE_TO_TOTAL_DEBT_RATIO()

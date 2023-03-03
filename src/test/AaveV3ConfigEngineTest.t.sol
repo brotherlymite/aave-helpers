@@ -2,18 +2,9 @@
 pragma solidity ^0.8.0;
 
 import 'forge-std/Test.sol';
-
 import {IAaveV3ConfigEngine} from '../v3-config-engine/IAaveV3ConfigEngine.sol';
 import {AaveV3PolygonMockListing} from './mocks/AaveV3PolygonMockListing.sol';
-import {AaveV3EthereumMockCapUpdate} from './mocks/AaveV3EthereumMockCapUpdate.sol';
-import {AaveV3AvalancheCollateralUpdate} from './mocks/AaveV3AvalancheCollateralUpdate.sol';
-import {AaveV3OptimismMockRatesUpdate} from './mocks/AaveV3OptimismMockRatesUpdate.sol';
-import {DeployRatesFactoryPolLib, DeployRatesFactoryEthLib, DeployRatesFactoryAvaLib, DeployRatesFactoryOptLib} from '../../script/V3RateStrategyFactory.s.sol';
-import {DeployEnginePolLib, DeployEngineEthLib, DeployEngineAvaLib, DeployEngineOptLib} from '../../script/AaveV3ConfigEngine.s.sol';
-import {AaveGovernanceV2, AaveV3Ethereum, AaveV3Polygon, AaveV3Optimism, AaveV3Avalanche, AaveMisc} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
-import {AaveV3OptimismAssets} from 'aave-address-book/AaveV3Optimism.sol';
-import {IDefaultInterestRateStrategy} from 'aave-address-book/AaveV3.sol';
+import {AaveV3PolygonRatesUpdates070322} from './mocks/gauntlet-updates/AaveV3PolygonRatesUpdates070322.sol';
 import '../ProtocolV3TestBase.sol';
 
 contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
@@ -253,3 +244,4 @@ contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
     return (amount * 1e27) / 10_000;
   }
 }
+
