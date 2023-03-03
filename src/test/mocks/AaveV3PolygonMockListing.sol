@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import '../../v3-config-engine/AaveV3PayloadBase.sol';
-import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
+import {AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
 
 /**
  * @dev Smart contract for a mock listing, to be able to test without having a v3 instance on Ethereum
@@ -11,6 +11,7 @@ import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygo
  * @author BGD Labs
  */
 contract AaveV3PolygonMockListing is AaveV3PayloadBase {
+  // TODO remove custom engine once available on address book
   constructor(IEngine customEngine) AaveV3PayloadBase(customEngine) {}
 
   function newListings() public view override returns (IEngine.Listing[] memory) {
@@ -23,11 +24,11 @@ contract AaveV3PolygonMockListing is AaveV3PayloadBase {
       rateStrategyParams: LISTING_ENGINE.RATE_STRATEGIES_FACTORY().getCurrentRateData(
         AaveV3PolygonAssets.AAVE_UNDERLYING
       ), // Quite common case, of setting the same rate strategy as an already listed asset
-      enabledToBorrow: true,
-      stableRateModeEnabled: false,
-      borrowableInIsolation: false,
-      withSiloedBorrowing: false,
-      flashloanable: false,
+      enabledToBorrow: EngineFlags.ENABLED,
+      stableRateModeEnabled: EngineFlags.DISABLED,
+      borrowableInIsolation: EngineFlags.DISABLED,
+      withSiloedBorrowing: EngineFlags.DISABLED,
+      flashloanable: EngineFlags.DISABLED,
       ltv: 82_50,
       liqThreshold: 86_00,
       liqBonus: 5_00,
