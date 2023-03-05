@@ -51,7 +51,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
     uint256 ltv; // Only considered if liqThreshold > 0. With 2 digits precision, `10_00` for 10%. Should be lower than liquidationThreshold
     uint256 liqThreshold; // If `0`, the asset will not be enabled as collateral. Same format as ltv, and should be higher
     uint256 liqBonus; // Only considered if liqThreshold > 0. Same format as ltv
-    uint256 debtCeiling; // Only considered if liqThreshold > 0. In USD and with 2 digits for decimals, e.g. 10_000_00 for 10k
+    uint256 debtCeiling; // Only considered if liqThreshold > 0. In USD and without decimals, so 100_000 for 100k USD debt ceiling
     uint256 liqProtocolFee; // Only considered if liqThreshold > 0. Same format as ltv
     uint256 eModeCategory;
   }
@@ -218,9 +218,9 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
       require(decimals > 0, 'INVALID_ASSET_DECIMALS');
 
       initReserveInputs[i] = ConfiguratorInputTypes.InitReserveInput({
-        aTokenImpl: ATOKEN_IMPL,
-        stableDebtTokenImpl: STOKEN_IMPL,
-        variableDebtTokenImpl: VTOKEN_IMPL,
+        aTokenImpl: basics[i].implementations.aToken,
+        stableDebtTokenImpl: basics[i].implementations.sToken,
+        variableDebtTokenImpl: basics[i].implementations.vToken,
         underlyingAssetDecimals: decimals,
         interestRateStrategyAddress: strategies[i],
         underlyingAsset: ids[i],
@@ -376,7 +376,8 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
         if (
           collaterals[i].ltv == EngineFlags.KEEP_CURRENT ||
           collaterals[i].liqThreshold == EngineFlags.KEEP_CURRENT ||
-          collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT
+          collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT ||
+          collaterals[i].liqProtocolFee == EngineFlags.KEEP_CURRENT
         ) {
           DataTypes.ReserveConfigurationMap memory configuration = POOL.getConfiguration(ids[i]);
           (
@@ -397,7 +398,11 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
           }
 
           if (collaterals[i].liqBonus == EngineFlags.KEEP_CURRENT) {
-            collaterals[i].liqBonus = currentLiqBonus;
+            collaterals[i].liqBonus = currentLiqBonus - 100_00;
+          }
+
+          if (collaterals[i].liqProtocolFee == EngineFlags.KEEP_CURRENT) {
+            collaterals[i].liqProtocolFee = configuration.getLiquidationProtocolFee();
           }
         }
 
@@ -421,7 +426,10 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
         }
 
         if (collaterals[i].debtCeiling != EngineFlags.KEEP_CURRENT) {
-          POOL_CONFIGURATOR.setDebtCeiling(ids[i], collaterals[i].debtCeiling);
+          // For reference, this is to simplify the interactions with the Aave protocol,
+          // as there the definition is with 2 decimals. We don't see any reason to set
+          // a debt ceiling involving .something USD, so we simply don't allow to do it
+          POOL_CONFIGURATOR.setDebtCeiling(ids[i], collaterals[i].debtCeiling * 100);
         }
       }
 

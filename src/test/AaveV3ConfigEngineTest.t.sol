@@ -14,6 +14,7 @@ import {AaveV3Ethereum, AaveV3Polygon, AaveV3Optimism, AaveV3Avalanche} from 'aa
 import {AaveV3OptimismAssets} from 'aave-address-book/AaveV3Optimism.sol';
 import {AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
 import {IDefaultInterestRateStrategy} from 'aave-address-book/AaveV3.sol';
+import {AaveV3PolygonRatesUpdates070322} from './mocks/gauntlet-updates/AaveV3PolygonRatesUpdates070322.sol';
 import '../ProtocolV3TestBase.sol';
 
 contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
@@ -335,3 +336,4 @@ contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
     return (amount * 1e27) / 10_000;
   }
 }
+
