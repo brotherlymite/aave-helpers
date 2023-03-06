@@ -283,7 +283,6 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
         } else {
           DataTypes.ReserveConfigurationMap memory configuration = POOL.getConfiguration(ids[i]);
           ( , , bool borrowingEnabled, , ) = configuration.getFlags();
-          borrowingEnabled = true;
           if (!borrowingEnabled) continue;
         }
 
