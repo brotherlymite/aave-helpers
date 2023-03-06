@@ -39,7 +39,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
   }
 
   struct Borrow {
-    uint256 enabledToBorrow; // Main config flag, if 0 (false), some of the other fields will not be considered
+    uint256 enabledToBorrow; // Main config flag, if EngineFlag.DISABLED, some of the other fields will not be considered
     uint256 flashloanable; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
     uint256 stableRateModeEnabled; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
     uint256 borrowableInIsolation; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
