@@ -280,7 +280,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
         }
       }
 
-      if (borrows[i].enabledToBorrow != EngineFlags.DISABLED) {
+      if (borrows[i].enabledToBorrow == EngineFlags.ENABLED) {
         POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
 
         // TODO: update after v3.0.1
