@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IAaveV3ConfigEngine} from '../v3-config-engine/IAaveV3ConfigEngine.sol';
 import {AaveV3PolygonMockListing} from './mocks/AaveV3PolygonMockListing.sol';
+import {AaveV3EthereumMockCustomListing} from './mocks/AaveV3EthereumMockCustomListing.sol';
 import {AaveV3EthereumMockCapUpdate} from './mocks/AaveV3EthereumMockCapUpdate.sol';
 import {AaveV3AvalancheCollateralUpdate} from './mocks/AaveV3AvalancheCollateralUpdate.sol';
 import {AaveV3PolygonBorrowUpdate} from './mocks/AaveV3PolygonBorrowUpdate.sol';
@@ -20,7 +21,7 @@ import '../ProtocolV3TestBase.sol';
 contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
   using stdStorage for StdStorage;
 
-  function testListing() public {
+  function testListings() public {
     vm.createSelectFork(vm.rpcUrl('polygon'), 39797440);
     (address ratesFactory, ) = DeployRatesFactoryPolLib.deploy();
 
@@ -99,6 +100,89 @@ contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
         aToken: engine.ATOKEN_IMPL(),
         stableDebtToken: engine.STOKEN_IMPL(),
         variableDebtToken: engine.VTOKEN_IMPL()
+      })
+    );
+  }
+
+  function testListingsCustom() public {
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 16727659);
+    (address ratesFactory, ) = DeployRatesFactoryEthLib.deploy();
+
+    IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineEthLib.deploy(ratesFactory));
+    AaveV3EthereumMockCustomListing payload = new AaveV3EthereumMockCustomListing(engine);
+
+    vm.startPrank(AaveV3Ethereum.ACL_ADMIN);
+    AaveV3Ethereum.ACL_MANAGER.addPoolAdmin(address(payload));
+    vm.stopPrank();
+
+    ReserveConfig[] memory allConfigsBefore = _getReservesConfigs(AaveV3Ethereum.POOL);
+
+    createConfigurationSnapshot('preTestEngineListingCustom', AaveV3Ethereum.POOL);
+
+    payload.execute();
+
+    createConfigurationSnapshot('postTestEngineListingCustom', AaveV3Ethereum.POOL);
+
+    diffReports('preTestEngineListingCustom', 'postTestEngineListingCustom');
+
+    ReserveConfig[] memory allConfigsAfter = _getReservesConfigs(AaveV3Ethereum.POOL);
+
+    ReserveConfig memory expectedAssetConfig = ReserveConfig({
+      symbol: '1INCH',
+      underlying: 0x111111111117dC0aa78b770fA6A738034120C302,
+      aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
+      variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
+      stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
+      decimals: 18,
+      ltv: 82_50,
+      liquidationThreshold: 86_00,
+      liquidationBonus: 105_00,
+      liquidationProtocolFee: 10_00,
+      reserveFactor: 10_00,
+      usageAsCollateralEnabled: true,
+      borrowingEnabled: true,
+      interestRateStrategy: _findReserveConfigBySymbol(allConfigsAfter, 'AAVE')
+        .interestRateStrategy,
+      stableBorrowRateEnabled: true,
+      isActive: true,
+      isFrozen: false,
+      isSiloed: false,
+      isBorrowableInIsolation: false,
+      isFlashloanable: false,
+      supplyCap: 85_000,
+      borrowCap: 60_000,
+      debtCeiling: 0,
+      eModeCategory: 0
+    });
+
+    _validateReserveConfig(expectedAssetConfig, allConfigsAfter);
+
+    _noReservesConfigsChangesApartNewListings(allConfigsBefore, allConfigsAfter);
+
+    _validateReserveTokensImpls(
+      AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
+      _findReserveConfigBySymbol(allConfigsAfter, '1INCH'),
+      ReserveTokens({
+        aToken: AaveV3Ethereum.DEFAULT_A_TOKEN_IMPL_REV_1,
+        stableDebtToken: AaveV3Ethereum.DEFAULT_STABLE_DEBT_TOKEN_IMPL_REV_1,
+        variableDebtToken: AaveV3Ethereum.DEFAULT_VARIABLE_DEBT_TOKEN_IMPL_REV_1
+      })
+    );
+
+    _validateAssetSourceOnOracle(
+      AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
+      0x111111111117dC0aa78b770fA6A738034120C302,
+      0x72AFAECF99C9d9C8215fF44C77B94B99C28741e8
+    );
+
+    // impl should be same as e.g. AAVE
+    _validateReserveTokensImpls(
+      AaveV3Ethereum.POOL_ADDRESSES_PROVIDER,
+      _findReserveConfigBySymbol(allConfigsAfter, 'AAVE'),
+      ReserveTokens({
+        aToken: AaveV3Ethereum.DEFAULT_A_TOKEN_IMPL_REV_1,
+        stableDebtToken: AaveV3Ethereum.DEFAULT_STABLE_DEBT_TOKEN_IMPL_REV_1,
+        variableDebtToken: AaveV3Ethereum.DEFAULT_VARIABLE_DEBT_TOKEN_IMPL_REV_1
       })
     );
   }
