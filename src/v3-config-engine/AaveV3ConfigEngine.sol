@@ -40,10 +40,10 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
   struct Borrow {
     uint256 enabledToBorrow; // Main config flag, if 0 (false), some of the other fields will not be considered
-    uint256 flashloanable; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
-    uint256 stableRateModeEnabled; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
-    uint256 borrowableInIsolation; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
-    uint256 withSiloedBorrowing; // 0 for false, 1 for true otherwise KEEP_CURRENT (to be denominated by EngineFlags)
+    uint256 flashloanable; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
+    uint256 stableRateModeEnabled; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
+    uint256 borrowableInIsolation; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
+    uint256 withSiloedBorrowing; // EngineFlag.ENABLED for true, EngineFlag.DISABLED for false otherwise EngineFlag.KEEP_CURRENT
     uint256 reserveFactor; // With 2 digits precision, `10_00` for 10%. Should be positive and < 100_00
   }
 
@@ -270,9 +270,10 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
   function _configBorrowSide(address[] memory ids, Borrow[] memory borrows) internal {
     for (uint256 i = 0; i < ids.length; i++) {
-      if (borrows[i].enabledToBorrow == 1 && borrows[i].enabledToBorrow != EngineFlags.KEEP_CURRENT) {
+      if (borrows[i].enabledToBorrow == EngineFlags.ENABLED && borrows[i].enabledToBorrow != EngineFlags.KEEP_CURRENT) {
         POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
 
+        // TODO: update after v3.0.1
         // If enabled to borrow, the reserve factor should always be configured and > 0
         require(
           borrows[i].reserveFactor > 0 && 
@@ -284,23 +285,25 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
         if (borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT)
           POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
 
-        if (borrows[i].stableRateModeEnabled == 1)
+        if (borrows[i].stableRateModeEnabled == EngineFlags.ENABLED)
           POOL_CONFIGURATOR.setReserveStableRateBorrowing(ids[i], true);
-        else if (borrows[i].stableRateModeEnabled == 0)
+        else if (borrows[i].stableRateModeEnabled == EngineFlags.DISABLED)
           POOL_CONFIGURATOR.setReserveStableRateBorrowing(ids[i], false);
 
-        if (borrows[i].borrowableInIsolation == 1)
+        if (borrows[i].borrowableInIsolation == EngineFlags.ENABLED)
           POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], true);
-        else if (borrows[i].borrowableInIsolation == 0)
+        else if (borrows[i].borrowableInIsolation == EngineFlags.DISABLED)
           POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], false);
 
-        if (borrows[i].withSiloedBorrowing == 1)
+        if (borrows[i].withSiloedBorrowing == EngineFlags.ENABLED)
           POOL_CONFIGURATOR.setSiloedBorrowing(ids[i], true);
-        else if (borrows[i].withSiloedBorrowing == 0)
+        else if (borrows[i].withSiloedBorrowing == EngineFlags.DISABLED)
           POOL_CONFIGURATOR.setSiloedBorrowing(ids[i], false);
 
       }
-      if (borrows[i].flashloanable == 1)
+
+      // TODO: update after v3.0.1
+      if (borrows[i].flashloanable == EngineFlags.ENABLED)
         POOL_CONFIGURATOR.setReserveFlashLoaning(ids[i], true);
     }
   }
