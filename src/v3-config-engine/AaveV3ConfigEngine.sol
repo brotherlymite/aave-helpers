@@ -271,15 +271,24 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
   function _configBorrowSide(address[] memory ids, Borrow[] memory borrows) internal {
     for (uint256 i = 0; i < ids.length; i++) {
-      if (borrows[i].enabledToBorrow == EngineFlags.ENABLED && borrows[i].enabledToBorrow != EngineFlags.KEEP_CURRENT) {
+      if (borrows[i].enabledToBorrow == EngineFlags.KEEP_CURRENT) {
+        DataTypes.ReserveConfigurationMap memory configuration = POOL.getConfiguration(ids[i]);
+        ( , , bool borrowingEnabled, , ) = configuration.getFlags();
+
+        if (borrowingEnabled) {
+          borrows[i].enabledToBorrow = EngineFlags.ENABLED;
+        }
+      }
+
+      if (borrows[i].enabledToBorrow != EngineFlags.DISABLED) {
         POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
 
         // TODO: update after v3.0.1
         // If enabled to borrow, the reserve factor should always be configured and > 0
         require(
-          borrows[i].reserveFactor > 0 && 
-          borrows[i].reserveFactor < 100_00 && 
-          borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT,
+          (borrows[i].reserveFactor > 0 && 
+          borrows[i].reserveFactor < 100_00) ||
+          borrows[i].reserveFactor == EngineFlags.KEEP_CURRENT,
           'INVALID_RESERVE_FACTOR'
         );
 
