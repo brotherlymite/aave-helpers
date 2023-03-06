@@ -90,6 +90,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
     require(sTokenImpl != address(0), 'ONLY_NONZERO_STOKEN');
     require(rewardsController != address(0), 'ONLY_NONZERO_REWARDS_CONTROLLER');
     require(collector != address(0), 'ONLY_NONZERO_COLLECTOR');
+    require(address(rateStrategiesFactory) != address(0), 'ONLY_NONZERO_RATES_FACTORY');
 
     POOL = pool;
     POOL_CONFIGURATOR = configurator;
@@ -332,7 +333,7 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
         strategiesParams[i].optimalStableToTotalDebtRatio == EngineFlags.KEEP_CURRENT
       ) {
         IV3RateStrategyFactory.RateStrategyParams
-          memory currentStrategyData = RATE_STRATEGIES_FACTORY.getCurrentRateData(ids[i]);
+          memory currentStrategyData = RATE_STRATEGIES_FACTORY.getStrategyDataOfAsset(ids[i]);
 
         if (strategiesParams[i].variableRateSlope1 == EngineFlags.KEEP_CURRENT) {
           strategiesParams[i].variableRateSlope1 = currentStrategyData.variableRateSlope1;

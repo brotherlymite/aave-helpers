@@ -61,14 +61,14 @@ interface IV3RateStrategyFactory {
    * @param asset The address of the asset
    * @return RateStrategyParams The parameters or the strategy, or empty RateStrategyParams struct
    */
-  function getCurrentRateData(address asset) external view returns (RateStrategyParams memory);
+  function getStrategyDataOfAsset(address asset) external view returns (RateStrategyParams memory);
 
   /**
    * @notice From a rate strategy address, returns its parameters
    * @param strategy The address of the rate strategy
    * @return RateStrategyParams Struct with the parameters of the strategy
    */
-  function getLiveStrategyData(IDefaultInterestRateStrategy strategy)
+  function getStrategyData(IDefaultInterestRateStrategy strategy)
     external
     view
     returns (RateStrategyParams memory);

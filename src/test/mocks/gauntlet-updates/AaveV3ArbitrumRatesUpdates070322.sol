@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 
 import '../../../v3-config-engine/AaveV3PayloadBase.sol';
-import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
+import {AaveV3Arbitrum, AaveV3ArbitrumAssets} from 'aave-address-book/AaveV3Arbitrum.sol';
 
 /**
  * @dev Payload for the initial rates update defined here on:
  * https://snapshot.org/#/aave.eth/proposal/0xbda28d65ca4d64005e6019948ed52d9d62c9e73e356ab1013aa2d4829f40c735
  * @author BGD Labs
  */
-contract AaveV3PolygonRatesUpdates070322 is AaveV3PayloadBase {
+contract AaveV3ArbitrumRatesUpdates070322 is AaveV3PayloadBase {
   // TODO remove custom engine once available on address book
   // TODO add RF changes once helper available on engine
   constructor(IEngine customEngine) AaveV3PayloadBase(customEngine) {}
@@ -20,54 +20,34 @@ contract AaveV3PolygonRatesUpdates070322 is AaveV3PayloadBase {
     override
     returns (IEngine.RateStrategyUpdate[] memory)
   {
-    IEngine.RateStrategyUpdate[] memory ratesUpdate = new IEngine.RateStrategyUpdate[](5);
+    IEngine.RateStrategyUpdate[] memory ratesUpdate = new IEngine.RateStrategyUpdate[](3);
 
     Rates.RateStrategyParams memory usdt = LISTING_ENGINE
       .RATE_STRATEGIES_FACTORY()
-      .getStrategyDataOfAsset(AaveV3PolygonAssets.USDT_UNDERLYING);
+      .getStrategyDataOfAsset(AaveV3ArbitrumAssets.USDT_UNDERLYING);
     usdt.optimalUsageRatio = _bpsToRay(80_00);
     usdt.variableRateSlope2 = _bpsToRay(75_00);
     usdt.stableRateSlope2 = _bpsToRay(75_00);
 
     Rates.RateStrategyParams memory eurs = LISTING_ENGINE
       .RATE_STRATEGIES_FACTORY()
-      .getStrategyDataOfAsset(AaveV3PolygonAssets.EURS_UNDERLYING);
+      .getStrategyDataOfAsset(AaveV3ArbitrumAssets.EURS_UNDERLYING);
     eurs.optimalUsageRatio = _bpsToRay(80_00);
     eurs.variableRateSlope2 = _bpsToRay(75_00);
     eurs.stableRateSlope2 = _bpsToRay(75_00);
 
-    Rates.RateStrategyParams memory mai = LISTING_ENGINE
-      .RATE_STRATEGIES_FACTORY()
-      .getStrategyDataOfAsset(AaveV3PolygonAssets.miMATIC_UNDERLYING);
-    mai.optimalUsageRatio = _bpsToRay(80_00);
-    mai.variableRateSlope2 = _bpsToRay(75_00);
-    mai.stableRateSlope2 = _bpsToRay(75_00);
-
-    Rates.RateStrategyParams memory ageur = LISTING_ENGINE
-      .RATE_STRATEGIES_FACTORY()
-      .getStrategyDataOfAsset(AaveV3PolygonAssets.agEUR_UNDERLYING);
-    ageur.optimalUsageRatio = _bpsToRay(80_00);
-    ageur.variableRateSlope2 = _bpsToRay(75_00);
-    ageur.stableRateSlope2 = _bpsToRay(75_00);
-
     ratesUpdate[0] = IEngine.RateStrategyUpdate({
-      asset: AaveV3PolygonAssets.USDT_UNDERLYING,
+      asset: AaveV3ArbitrumAssets.USDT_UNDERLYING,
       params: usdt
     });
+
     ratesUpdate[1] = IEngine.RateStrategyUpdate({
-      asset: AaveV3PolygonAssets.EURS_UNDERLYING,
+      asset: AaveV3ArbitrumAssets.EURS_UNDERLYING,
       params: eurs
     });
+
     ratesUpdate[2] = IEngine.RateStrategyUpdate({
-      asset: AaveV3PolygonAssets.miMATIC_UNDERLYING,
-      params: mai
-    });
-    ratesUpdate[3] = IEngine.RateStrategyUpdate({
-      asset: AaveV3PolygonAssets.agEUR_UNDERLYING,
-      params: ageur
-    });
-    ratesUpdate[4] = IEngine.RateStrategyUpdate({
-      asset: AaveV3PolygonAssets.WETH_UNDERLYING,
+      asset: AaveV3ArbitrumAssets.WETH_UNDERLYING,
       params: Rates.RateStrategyParams({
         optimalUsageRatio: _bpsToRay(80_00),
         baseVariableBorrowRate: _bpsToRay(1_00),
@@ -85,6 +65,6 @@ contract AaveV3PolygonRatesUpdates070322 is AaveV3PayloadBase {
   }
 
   function getPoolContext() public pure override returns (IEngine.PoolContext memory) {
-    return IEngine.PoolContext({networkName: 'Polygon', networkAbbreviation: 'Pol'});
+    return IEngine.PoolContext({networkName: 'Optimism', networkAbbreviation: 'Opt'});
   }
 }

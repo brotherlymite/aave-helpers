@@ -6,9 +6,9 @@
 update:; forge update
 
 # Build & test
-build  :; forge build --sizes --via-ir
+build  :; forge build
 test   :; forge test -vvv
-test-v3-engine:; forge test -vvv --match-contract AaveV3ConfigEngineTest --gas-report
+test-gauntlet-strategies-update:; forge test -vvv --match-path src/test/AaveV3ConfigEngineTest.t.sol --gas-report
 
 
 # Scripts

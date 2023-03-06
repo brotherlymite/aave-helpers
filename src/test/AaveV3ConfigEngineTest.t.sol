@@ -9,13 +9,16 @@ import {AaveV3AvalancheCollateralUpdate} from './mocks/AaveV3AvalancheCollateral
 import {AaveV3PolygonBorrowUpdate} from './mocks/AaveV3PolygonBorrowUpdate.sol';
 import {AaveV3PolygonPriceFeedUpdate} from './mocks/AaveV3PolygonPriceFeedUpdate.sol';
 import {AaveV3OptimismMockRatesUpdate} from './mocks/AaveV3OptimismMockRatesUpdate.sol';
-import {DeployRatesFactoryPolLib, DeployRatesFactoryEthLib, DeployRatesFactoryAvaLib, DeployRatesFactoryOptLib} from '../../script/V3RateStrategyFactory.s.sol';
-import {DeployEnginePolLib, DeployEngineEthLib, DeployEngineAvaLib, DeployEngineOptLib} from '../../script/AaveV3ConfigEngine.s.sol';
-import {AaveV3Ethereum, AaveV3Polygon, AaveV3Optimism, AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
+import {DeployRatesFactoryPolLib, DeployRatesFactoryEthLib, DeployRatesFactoryAvaLib, DeployRatesFactoryArbLib, DeployRatesFactoryOptLib} from '../../script/V3RateStrategyFactory.s.sol';
+import {DeployEnginePolLib, DeployEngineEthLib, DeployEngineAvaLib, DeployEngineOptLib, DeployEngineArbLib} from '../../script/AaveV3ConfigEngine.s.sol';
+import {AaveV3Ethereum, AaveV3Polygon, AaveV3Optimism, AaveV3Avalanche, AaveV3Arbitrum} from 'aave-address-book/AaveAddressBook.sol';
 import {AaveV3OptimismAssets} from 'aave-address-book/AaveV3Optimism.sol';
 import {AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
 import {IDefaultInterestRateStrategy} from 'aave-address-book/AaveV3.sol';
 import {AaveV3PolygonRatesUpdates070322} from './mocks/gauntlet-updates/AaveV3PolygonRatesUpdates070322.sol';
+import {AaveV3AvalancheRatesUpdates070322} from './mocks/gauntlet-updates/AaveV3AvalancheRatesUpdates070322.sol';
+import {AaveV3OptimismRatesUpdates070322} from './mocks/gauntlet-updates/AaveV3OptimismRatesUpdates070322.sol';
+import {AaveV3ArbitrumRatesUpdates070322} from './mocks/gauntlet-updates/AaveV3ArbitrumRatesUpdates070322.sol';
 import '../ProtocolV3TestBase.sol';
 
 contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
@@ -410,65 +413,65 @@ contract AaveV3ConfigEngineTest is ProtocolV3TestBase {
     diffReports('preTestEnginePolV3', 'postTestEnginePolV3');
   }
 
-  // function testAvaxRateStrategiesUpdates() public {
-  //   vm.createSelectFork(vm.rpcUrl('avalanche'), 26972500);
-  //   (address ratesFactory, ) = DeployRatesFactoryAvaLib.deploy();
+  function testAvaxRateStrategiesUpdates() public {
+    vm.createSelectFork(vm.rpcUrl('avalanche'), 26972500);
+    (address ratesFactory, ) = DeployRatesFactoryAvaLib.deploy();
 
-  //   IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineAvaLib.deploy(ratesFactory));
-  //   AaveV3AvalancheRatesUpdates070322 payload = new AaveV3AvalancheRatesUpdates070322(engine);
+    IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineAvaLib.deploy(ratesFactory));
+    AaveV3AvalancheRatesUpdates070322 payload = new AaveV3AvalancheRatesUpdates070322(engine);
 
-  //   vm.startPrank(AaveV3Avalanche.ACL_ADMIN);
-  //   AaveV3Avalanche.ACL_MANAGER.addPoolAdmin(address(payload));
-  //   vm.stopPrank();
+    vm.startPrank(AaveV3Avalanche.ACL_ADMIN);
+    AaveV3Avalanche.ACL_MANAGER.addPoolAdmin(address(payload));
+    vm.stopPrank();
 
-  //   createConfigurationSnapshot('preTestEngineAvaV3', AaveV3Avalanche.POOL);
+    createConfigurationSnapshot('preTestEngineAvaV3', AaveV3Avalanche.POOL);
 
-  //   payload.execute();
+    payload.execute();
 
-  //   createConfigurationSnapshot('postTestEngineAvaV3', AaveV3Avalanche.POOL);
+    createConfigurationSnapshot('postTestEngineAvaV3', AaveV3Avalanche.POOL);
 
-  //   diffReports('preTestEngineAvaV3', 'postTestEngineAvaV3');
-  // }
+    diffReports('preTestEngineAvaV3', 'postTestEngineAvaV3');
+  }
 
-  // function testOptimismRateStrategiesUpdates() public {
-  //   vm.createSelectFork(vm.rpcUrl('optimism'), 78759890);
-  //   (address ratesFactory, ) = DeployRatesFactoryAvaLib.deploy();
+  function testOptimismRateStrategiesUpdates() public {
+    vm.createSelectFork(vm.rpcUrl('optimism'), 78759890);
+    (address ratesFactory, ) = DeployRatesFactoryAvaLib.deploy();
 
-  //   IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineAvaLib.deploy(ratesFactory));
-  //   AaveV3OptimismRatesUpdates070322 payload = new AaveV3OptimismRatesUpdates070322(engine);
+    IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineAvaLib.deploy(ratesFactory));
+    AaveV3OptimismRatesUpdates070322 payload = new AaveV3OptimismRatesUpdates070322(engine);
 
-  //   vm.startPrank(AaveV3Optimism.ACL_ADMIN);
-  //   AaveV3Optimism.ACL_MANAGER.addPoolAdmin(address(payload));
-  //   vm.stopPrank();
+    vm.startPrank(AaveV3Optimism.ACL_ADMIN);
+    AaveV3Optimism.ACL_MANAGER.addPoolAdmin(address(payload));
+    vm.stopPrank();
 
-  //   createConfigurationSnapshot('preTestEngineOptV3', AaveV3Optimism.POOL);
+    createConfigurationSnapshot('preTestEngineOptV3', AaveV3Optimism.POOL);
 
-  //   payload.execute();
+    payload.execute();
 
-  //   createConfigurationSnapshot('postTestEngineOptV3', AaveV3Optimism.POOL);
+    createConfigurationSnapshot('postTestEngineOptV3', AaveV3Optimism.POOL);
 
-  //   diffReports('preTestEngineOptV3', 'postTestEngineOptV3');
-  // }
+    diffReports('preTestEngineOptV3', 'postTestEngineOptV3');
+  }
 
-  // function testArbitrumRateStrategiesUpdates() public {
-  //   vm.createSelectFork(vm.rpcUrl('arbitrum'), 67062320);
-  //   (address ratesFactory, ) = DeployRatesFactoryAvaLib.deploy();
+  function testArbitrumRateStrategiesUpdates() public {
+    vm.createSelectFork(vm.rpcUrl('arbitrum'), 67062320);
+    (address ratesFactory, ) = DeployRatesFactoryAvaLib.deploy();
 
-  //   IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineAvaLib.deploy(ratesFactory));
-  //   AaveV3ArbitrumRatesUpdates070322 payload = new AaveV3ArbitrumRatesUpdates070322(engine);
+    IAaveV3ConfigEngine engine = IAaveV3ConfigEngine(DeployEngineAvaLib.deploy(ratesFactory));
+    AaveV3ArbitrumRatesUpdates070322 payload = new AaveV3ArbitrumRatesUpdates070322(engine);
 
-  //   vm.startPrank(AaveV3Arbitrum.ACL_ADMIN);
-  //   AaveV3Arbitrum.ACL_MANAGER.addPoolAdmin(address(payload));
-  //   vm.stopPrank();
+    vm.startPrank(AaveV3Arbitrum.ACL_ADMIN);
+    AaveV3Arbitrum.ACL_MANAGER.addPoolAdmin(address(payload));
+    vm.stopPrank();
 
-  //   createConfigurationSnapshot('preTestEngineArbV3', AaveV3Arbitrum.POOL);
+    createConfigurationSnapshot('preTestEngineArbV3', AaveV3Arbitrum.POOL);
 
-  //   payload.execute();
+    payload.execute();
 
-  //   createConfigurationSnapshot('postTestEngineArbV3', AaveV3Arbitrum.POOL);
+    createConfigurationSnapshot('postTestEngineArbV3', AaveV3Arbitrum.POOL);
 
-  //   diffReports('preTestEngineArbV3', 'postTestEngineArbV3');
-  // }
+    diffReports('preTestEngineArbV3', 'postTestEngineArbV3');
+  }
 
   function testPriceFeedsUpdates() public {
     vm.createSelectFork(vm.rpcUrl('polygon'), 39797440);

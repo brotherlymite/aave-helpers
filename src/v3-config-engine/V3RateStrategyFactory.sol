@@ -26,7 +26,7 @@ contract V3RateStrategyFactory is Initializable, IV3RateStrategyFactory {
   /// from this factory, as they share exactly the same code
   function initialize(IDefaultInterestRateStrategy[] memory liveStrategies) external initializer {
     for (uint256 i = 0; i < liveStrategies.length; i++) {
-      RateStrategyParams memory params = getLiveStrategyData(liveStrategies[i]);
+      RateStrategyParams memory params = getStrategyData(liveStrategies[i]);
 
       bytes32 hashedParams = strategyHashFromParams(params);
 
@@ -101,7 +101,7 @@ contract V3RateStrategyFactory is Initializable, IV3RateStrategyFactory {
   }
 
   ///@inheritdoc IV3RateStrategyFactory
-  function getCurrentRateData(address asset) external view returns (RateStrategyParams memory) {
+  function getStrategyDataOfAsset(address asset) external view returns (RateStrategyParams memory) {
     RateStrategyParams memory params;
 
     IDefaultInterestRateStrategy strategy = IDefaultInterestRateStrategy(
@@ -109,14 +109,14 @@ contract V3RateStrategyFactory is Initializable, IV3RateStrategyFactory {
     );
 
     if (address(strategy) != address(0)) {
-      params = getLiveStrategyData(IDefaultInterestRateStrategy(strategy));
+      params = getStrategyData(strategy);
     }
 
     return params;
   }
 
   ///@inheritdoc IV3RateStrategyFactory
-  function getLiveStrategyData(IDefaultInterestRateStrategy strategy)
+  function getStrategyData(IDefaultInterestRateStrategy strategy)
     public
     view
     returns (RateStrategyParams memory)
