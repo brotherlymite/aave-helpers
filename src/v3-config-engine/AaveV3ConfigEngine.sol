@@ -286,22 +286,25 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
           POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
         }
 
-        if (borrows[i].stableRateModeEnabled == EngineFlags.ENABLED) {
-          POOL_CONFIGURATOR.setReserveStableRateBorrowing(ids[i], true);
-        } else if (borrows[i].stableRateModeEnabled == EngineFlags.DISABLED) {
-          POOL_CONFIGURATOR.setReserveStableRateBorrowing(ids[i], false);
+        if (borrows[i].stableRateModeEnabled != EngineFlags.KEEP_CURRENT) {
+          POOL_CONFIGURATOR.setReserveStableRateBorrowing(
+            ids[i],
+            EngineFlags.toBool(borrows[i].stableRateModeEnabled)
+          );
         }
 
-        if (borrows[i].borrowableInIsolation == EngineFlags.ENABLED) {
-          POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], true);
-        } else if (borrows[i].borrowableInIsolation == EngineFlags.DISABLED) {
-          POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], false);
+        if (borrows[i].borrowableInIsolation != EngineFlags.KEEP_CURRENT) {
+          POOL_CONFIGURATOR.setBorrowableInIsolation(
+            ids[i],
+            EngineFlags.toBool(borrows[i].borrowableInIsolation)
+          );
         }
 
-        if (borrows[i].withSiloedBorrowing == EngineFlags.ENABLED) {
-          POOL_CONFIGURATOR.setSiloedBorrowing(ids[i], true);
-        } else if (borrows[i].withSiloedBorrowing == EngineFlags.DISABLED) {
-          POOL_CONFIGURATOR.setSiloedBorrowing(ids[i], false);
+        if (borrows[i].withSiloedBorrowing != EngineFlags.KEEP_CURRENT) {
+          POOL_CONFIGURATOR.setSiloedBorrowing(
+            ids[i],
+            EngineFlags.toBool(borrows[i].withSiloedBorrowing)
+          );
         }
       }
 

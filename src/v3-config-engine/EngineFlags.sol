@@ -11,4 +11,14 @@ library EngineFlags {
 
   /// @dev value to be used as flag for bool value false
   uint256 public constant DISABLED = 0;
+
+  /// @dev converts flag ENABLED DISABLED to bool
+  function toBool(uint256 flag) public pure returns (bool) {
+    require(flag == 0 || flag == 1, 'INVALID_CONVERSION_TO_BOOL');
+    if (flag == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
