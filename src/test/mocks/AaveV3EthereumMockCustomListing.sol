@@ -20,7 +20,7 @@ contract AaveV3EthereumMockCustomListing is AaveV3PayloadBase {
         asset: 0x111111111117dC0aa78b770fA6A738034120C302,
         assetSymbol: '1INCH',
         priceFeed: 0x72AFAECF99C9d9C8215fF44C77B94B99C28741e8,
-        rateStrategyParams: LISTING_ENGINE.RATE_STRATEGIES_FACTORY().getCurrentRateData(
+        rateStrategyParams: LISTING_ENGINE.RATE_STRATEGIES_FACTORY().getStrategyDataOfAsset(
           AaveV3EthereumAssets.AAVE_UNDERLYING
         ), // Quite common case, of setting the same rate strategy as an already listed asset
         enabledToBorrow: EngineFlags.ENABLED,
