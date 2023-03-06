@@ -271,34 +271,16 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
 
   function _configBorrowSide(address[] memory ids, Borrow[] memory borrows) internal {
     for (uint256 i = 0; i < ids.length; i++) {
-      // TODO: update after v3.0.1
-      if (borrows[i].flashloanable == EngineFlags.ENABLED) {
-        POOL_CONFIGURATOR.setReserveFlashLoaning(ids[i], true);
+      if (borrows[i].enabledToBorrow != EngineFlags.KEEP_CURRENT) {
+        POOL_CONFIGURATOR.setReserveBorrowing(ids[i], EngineFlags.toBool(borrows[i].enabledToBorrow));
+      } else {
+        DataTypes.ReserveConfigurationMap memory configuration = POOL.getConfiguration(ids[i]);
+        ( , , bool borrowingEnabled, , ) = configuration.getFlags();
+        borrowingEnabled ? 
+          borrows[i].enabledToBorrow = EngineFlags.ENABLED : borrows[i].enabledToBorrow = EngineFlags.DISABLED;
       }
 
-      if (borrows[i].enabledToBorrow != EngineFlags.DISABLED) {
-
-        if (borrows[i].enabledToBorrow == EngineFlags.ENABLED) {
-          POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
-        } else {
-          DataTypes.ReserveConfigurationMap memory configuration = POOL.getConfiguration(ids[i]);
-          ( , , bool borrowingEnabled, , ) = configuration.getFlags();
-          if (!borrowingEnabled) continue;
-        }
-
-        // TODO: update after v3.0.1
-        // If enabled to borrow, the reserve factor should always be configured and > 0
-        require(
-          (borrows[i].reserveFactor > 0 && 
-          borrows[i].reserveFactor < 100_00) ||
-          borrows[i].reserveFactor == EngineFlags.KEEP_CURRENT,
-          'INVALID_RESERVE_FACTOR'
-        );
-
-        if (borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT) {
-          POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
-        }
-
+      if (borrows[i].enabledToBorrow == EngineFlags.ENABLED) {
         if (borrows[i].stableRateModeEnabled != EngineFlags.KEEP_CURRENT) {
           POOL_CONFIGURATOR.setReserveStableRateBorrowing(
             ids[i],
@@ -319,6 +301,24 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
             EngineFlags.toBool(borrows[i].withSiloedBorrowing)
           );
         }
+
+        // TODO: update after v3.0.1
+        // If enabled to borrow, the reserve factor should always be configured and > 0
+        require(
+          (borrows[i].reserveFactor > 0 && 
+          borrows[i].reserveFactor < 100_00) ||
+          borrows[i].reserveFactor == EngineFlags.KEEP_CURRENT,
+          'INVALID_RESERVE_FACTOR'
+        );
+
+        if (borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT) {
+          POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
+        }
+      }
+
+      // TODO: update after v3.0.1
+      if (borrows[i].flashloanable == EngineFlags.ENABLED) {
+        POOL_CONFIGURATOR.setReserveFlashLoaning(ids[i], true);
       }
     }
   }
