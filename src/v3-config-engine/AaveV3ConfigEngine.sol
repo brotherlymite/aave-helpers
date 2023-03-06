@@ -287,33 +287,33 @@ contract AaveV3ConfigEngine is IAaveV3ConfigEngine {
             EngineFlags.toBool(borrows[i].stableRateModeEnabled)
           );
         }
+      }
 
-        if (borrows[i].borrowableInIsolation != EngineFlags.KEEP_CURRENT) {
-          POOL_CONFIGURATOR.setBorrowableInIsolation(
-            ids[i],
-            EngineFlags.toBool(borrows[i].borrowableInIsolation)
-          );
-        }
-
-        if (borrows[i].withSiloedBorrowing != EngineFlags.KEEP_CURRENT) {
-          POOL_CONFIGURATOR.setSiloedBorrowing(
-            ids[i],
-            EngineFlags.toBool(borrows[i].withSiloedBorrowing)
-          );
-        }
-
-        // TODO: update after v3.0.1
-        // If enabled to borrow, the reserve factor should always be configured and > 0
-        require(
-          (borrows[i].reserveFactor > 0 && 
-          borrows[i].reserveFactor < 100_00) ||
-          borrows[i].reserveFactor == EngineFlags.KEEP_CURRENT,
-          'INVALID_RESERVE_FACTOR'
+      if (borrows[i].borrowableInIsolation != EngineFlags.KEEP_CURRENT) {
+        POOL_CONFIGURATOR.setBorrowableInIsolation(
+          ids[i],
+          EngineFlags.toBool(borrows[i].borrowableInIsolation)
         );
+      }
 
-        if (borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT) {
-          POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
-        }
+      if (borrows[i].withSiloedBorrowing != EngineFlags.KEEP_CURRENT) {
+        POOL_CONFIGURATOR.setSiloedBorrowing(
+          ids[i],
+          EngineFlags.toBool(borrows[i].withSiloedBorrowing)
+        );
+      }
+
+      // TODO: update after v3.0.1
+      // The reserve factor should always be > 0
+      require(
+        (borrows[i].reserveFactor > 0 && 
+        borrows[i].reserveFactor < 100_00) ||
+        borrows[i].reserveFactor == EngineFlags.KEEP_CURRENT,
+        'INVALID_RESERVE_FACTOR'
+      );
+
+      if (borrows[i].reserveFactor != EngineFlags.KEEP_CURRENT) {
+        POOL_CONFIGURATOR.setReserveFactor(ids[i], borrows[i].reserveFactor);
       }
 
       // TODO: update after v3.0.1
